@@ -23,39 +23,69 @@ if st.session_state.theme_mode == "light":
     st.markdown(
         """
         <style>
-        .stApp {background: linear-gradient(180deg, #f7f7f7 0%, #fffdfa 100%); color: #1e1e1e;}
-        .card {background: #ffffff; border-radius: 12px; padding: 20px; margin-bottom: 18px;
-               box-shadow: 0 6px 18px rgba(0,0,0,0.08); border: 1px solid #efefef;}
-        h1,h2,h3,h4,h5 {color:#222!important;font-weight:600;}
-        section[data-testid="stSidebar"] {background-color:#ffffff;border-right:1px solid #e0e0e0;}
+        * {
+            transition: all 0.35s ease-in-out !important;
+        }
+        .stApp {
+            background: linear-gradient(180deg, #f7f7f7 0%, #fffdfa 100%);
+            color: #1e1e1e;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            border: 1px solid #efefef;
+            transition: all 0.4s ease-in-out;
+        }
+        h1,h2,h3,h4,h5 {color:#222!important;font-weight:600;transition: color 0.4s ease;}
+        section[data-testid="stSidebar"] {
+            background-color:#ffffff;
+            border-right:1px solid #e0e0e0;
+            transition: all 0.4s ease-in-out;
+        }
         section[data-testid="stSidebar"] h3 {color:#e74c3c!important;font-weight:700;}
-        table {border-collapse:collapse!important;border-radius:10px!important;overflow:hidden!important;}
-        thead th {background-color:#f2f2f2!important;color:#1a1a1a!important;font-weight:600!important;text-align:center!important;}
-        tbody tr {background-color:#ffffff!important;color:#1a1a1a!important;text-align:center!important;}
-        tbody tr:nth-child(even){background-color:#fafafa!important;}
-        .stMetric {background:#fff;border-radius:10px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
-        .stDownloadButton button {background:#e74c3c;color:white;border:none;border-radius:8px;
-                                  padding:10px 18px;font-weight:600;transition:0.2s;}
-        .stDownloadButton button:hover {background:#c0392b;transform:scale(1.02);}
+        .stDownloadButton button {
+            background:#e74c3c;color:white;border:none;border-radius:8px;
+            padding:10px 18px;font-weight:600;transition:0.3s ease-in-out;
+        }
+        .stDownloadButton button:hover {background:#c0392b;transform:scale(1.03);}
         </style>
         """, unsafe_allow_html=True)
 else:
     st.markdown(
         """
         <style>
-        .stApp {background: #1c1c1c; color: #f5f5f5;}
-        .card {background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 18px;
-               box-shadow: 0 6px 18px rgba(0,0,0,0.5); border: 1px solid #333;}
-        h1,h2,h3,h4,h5 {color:#f5f5f5!important;font-weight:600;}
-        section[data-testid="stSidebar"] {background-color:#252525;border-right:1px solid #333;color:#f5f5f5;}
+        * {
+            transition: all 0.35s ease-in-out !important;
+        }
+        .stApp {
+            background: #1c1c1c;
+            color: #f5f5f5;
+        }
+        .card {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            transition: all 0.4s ease-in-out;
+        }
+        h1,h2,h3,h4,h5 {color:#f5f5f5!important;font-weight:600;transition: color 0.4s ease;}
+        section[data-testid="stSidebar"] {
+            background-color:#252525;
+            border-right:1px solid #333;
+            color:#f5f5f5;
+            transition: all 0.4s ease-in-out;
+        }
         section[data-testid="stSidebar"] h3 {color:#ff6347!important;font-weight:700;}
-        thead th {background-color:#333!important;color:#f5f5f5!important;}
-        tbody tr {background-color:#2a2a2a!important;color:#f5f5f5!important;}
-        tbody tr:nth-child(even){background-color:#202020!important;}
-        .stMetric {background:#333;border-radius:10px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.3);}
-        .stDownloadButton button {background:#ff6347;color:white;border:none;border-radius:8px;
-                                  padding:10px 18px;font-weight:600;transition:0.2s;}
-        .stDownloadButton button:hover {background:#e74c3c;transform:scale(1.02);}
+        .stDownloadButton button {
+            background:#ff6347;color:white;border:none;border-radius:8px;
+            padding:10px 18px;font-weight:600;transition:0.3s ease-in-out;
+        }
+        .stDownloadButton button:hover {background:#e74c3c;transform:scale(1.03);}
         </style>
         """, unsafe_allow_html=True)
 
@@ -166,3 +196,4 @@ st.markdown("</div>", unsafe_allow_html=True)
 # ---------- Footer ----------
 st.markdown("---")
 st.caption("Dibuat dengan penuh 🍅 oleh Khairul Faiz — tampilan modern & mode gelap")
+
