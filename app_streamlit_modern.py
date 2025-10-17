@@ -23,71 +23,159 @@ if st.session_state.theme_mode == "light":
     st.markdown(
         """
         <style>
+        /* ========== TRANSITION BASE ========== */
         * {
-            transition: all 0.35s ease-in-out !important;
+            transition: all 0.4s ease-in-out !important;
         }
+
+        /* shimmer animation */
+        @keyframes shimmer {
+            0% {opacity: 0.6; filter: blur(0px);}
+            50% {opacity: 1; filter: blur(4px);}
+            100% {opacity: 0.6; filter: blur(0px);}
+        }
+
+        /* app background */
         .stApp {
-            background: linear-gradient(180deg, #f7f7f7 0%, #fffdfa 100%);
+            background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,250,245,0.9) 100%);
+            backdrop-filter: blur(15px);
             color: #1e1e1e;
+            animation: shimmer 1.2s ease;
         }
+
+        /* card glass style */
         .card {
-            background: #ffffff;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 16px;
             padding: 20px;
             margin-bottom: 18px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-            border: 1px solid #efefef;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.6);
+            backdrop-filter: blur(10px);
             transition: all 0.4s ease-in-out;
         }
-        h1,h2,h3,h4,h5 {color:#222!important;font-weight:600;transition: color 0.4s ease;}
+
+        /* typography */
+        h1,h2,h3,h4,h5 {
+            color: #1b1b1b !important;
+            font-weight: 600;
+            transition: color 0.4s ease;
+        }
+
+        /* sidebar */
         section[data-testid="stSidebar"] {
-            background-color:#ffffff;
-            border-right:1px solid #e0e0e0;
-            transition: all 0.4s ease-in-out;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(0,0,0,0.05);
+            color: #1e1e1e;
+            transition: all 0.5s ease;
         }
-        section[data-testid="stSidebar"] h3 {color:#e74c3c!important;font-weight:700;}
+
+        section[data-testid="stSidebar"] h3 {
+            color: #e74c3c !important;
+            font-weight: 700;
+        }
+
+        /* buttons */
         .stDownloadButton button {
-            background:#e74c3c;color:white;border:none;border-radius:8px;
-            padding:10px 18px;font-weight:600;transition:0.3s ease-in-out;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(231,76,60,0.3);
+            transition: 0.3s ease-in-out;
         }
-        .stDownloadButton button:hover {background:#c0392b;transform:scale(1.03);}
+
+        .stDownloadButton button:hover {
+            background: #c0392b;
+            transform: scale(1.03);
+            box-shadow: 0 6px 15px rgba(192,57,43,0.4);
+        }
         </style>
-        """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 else:
     st.markdown(
         """
         <style>
+        /* ========== TRANSITION BASE ========== */
         * {
-            transition: all 0.35s ease-in-out !important;
+            transition: all 0.4s ease-in-out !important;
         }
+
+        /* shimmer animation */
+        @keyframes shimmer {
+            0% {opacity: 0.5; filter: blur(0px);}
+            50% {opacity: 0.9; filter: blur(5px);}
+            100% {opacity: 0.5; filter: blur(0px);}
+        }
+
+        /* app background */
         .stApp {
-            background: #1c1c1c;
+            background: radial-gradient(circle at top left, rgba(30,30,30,0.95), rgba(15,15,15,1));
+            backdrop-filter: blur(15px);
             color: #f5f5f5;
+            animation: shimmer 1.2s ease;
         }
+
+        /* card glass style */
         .card {
-            background: #2a2a2a;
-            border-radius: 12px;
+            background: rgba(40, 40, 40, 0.7);
+            border-radius: 16px;
             padding: 20px;
             margin-bottom: 18px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.5);
-            border: 1px solid #333;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
             transition: all 0.4s ease-in-out;
         }
-        h1,h2,h3,h4,h5 {color:#f5f5f5!important;font-weight:600;transition: color 0.4s ease;}
+
+        /* typography */
+        h1,h2,h3,h4,h5 {
+            color: #f5f5f5 !important;
+            font-weight: 600;
+            transition: color 0.4s ease;
+        }
+
+        /* sidebar */
         section[data-testid="stSidebar"] {
-            background-color:#252525;
-            border-right:1px solid #333;
-            color:#f5f5f5;
-            transition: all 0.4s ease-in-out;
+            background: rgba(25,25,25,0.75);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            color: #f5f5f5;
+            transition: all 0.5s ease;
         }
-        section[data-testid="stSidebar"] h3 {color:#ff6347!important;font-weight:700;}
+
+        section[data-testid="stSidebar"] h3 {
+            color: #ff6347 !important;
+            font-weight: 700;
+        }
+
+        /* buttons */
         .stDownloadButton button {
-            background:#ff6347;color:white;border:none;border-radius:8px;
-            padding:10px 18px;font-weight:600;transition:0.3s ease-in-out;
+            background: linear-gradient(90deg, #ff6347, #ff2d2d);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255,99,71,0.4);
+            transition: 0.3s ease-in-out;
         }
-        .stDownloadButton button:hover {background:#e74c3c;transform:scale(1.03);}
+
+        .stDownloadButton button:hover {
+            background: linear-gradient(90deg, #ff4444, #ff1a1a);
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(255,99,71,0.5);
+        }
         </style>
-        """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
+
 
 # ---------- Load Dataset & Model ----------
 @st.cache_data(show_spinner=False)
@@ -196,4 +284,5 @@ st.markdown("</div>", unsafe_allow_html=True)
 # ---------- Footer ----------
 st.markdown("---")
 st.caption("Dibuat dengan penuh 🍅 oleh Khairul Faiz — tampilan modern & mode gelap")
+
 
