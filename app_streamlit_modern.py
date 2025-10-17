@@ -1,50 +1,65 @@
-# app_streamlit_modern.py
 import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
 import plotly.express as px
 import time
-from io import BytesIO
 
-# ---------- Page config ----------
+# ---------- Page Config ----------
 st.set_page_config(
     page_title="Klasifikasi Tomat — Modern",
     page_icon="🍅",
     layout="wide"
 )
 
-# ---------- Styling (simple material-like card) ----------
-st.markdown(
-    """
-    <style>
-    /* background */
-    .stApp {
-        background: linear-gradient(180deg, #fff 0%, #fffaf6 100%);
-    }
-    /* card */
-    .card {
-        background: white;
-        border-radius: 12px;
-        padding: 18px;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-    }
-    .muted {
-        color: #6b7280;
-        font-size:13px;
-    }
-    .brand {
-        color: #e74c3c;
-        font-weight:700;
-    }
-    /* remove default streamlit padding on wide mode for nicer edge */
-    .css-12oz5g7 { padding: 0rem 1rem 1rem 1rem; }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+# ---------- Custom Style (Light + Dark Mode) ----------
+if "theme_mode" not in st.session_state:
+    st.session_state.theme_mode = "light"
 
-# ---------- Load dataset and model (with graceful errors) ----------
+toggle = st.sidebar.toggle("🌗 Mode Gelap", value=False)
+st.session_state.theme_mode = "dark" if toggle else "light"
+
+if st.session_state.theme_mode == "light":
+    st.markdown(
+        """
+        <style>
+        .stApp {background: linear-gradient(180deg, #f7f7f7 0%, #fffdfa 100%); color: #1e1e1e;}
+        .card {background: #ffffff; border-radius: 12px; padding: 20px; margin-bottom: 18px;
+               box-shadow: 0 6px 18px rgba(0,0,0,0.08); border: 1px solid #efefef;}
+        h1,h2,h3,h4,h5 {color:#222!important;font-weight:600;}
+        section[data-testid="stSidebar"] {background-color:#ffffff;border-right:1px solid #e0e0e0;}
+        section[data-testid="stSidebar"] h3 {color:#e74c3c!important;font-weight:700;}
+        table {border-collapse:collapse!important;border-radius:10px!important;overflow:hidden!important;}
+        thead th {background-color:#f2f2f2!important;color:#1a1a1a!important;font-weight:600!important;text-align:center!important;}
+        tbody tr {background-color:#ffffff!important;color:#1a1a1a!important;text-align:center!important;}
+        tbody tr:nth-child(even){background-color:#fafafa!important;}
+        .stMetric {background:#fff;border-radius:10px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+        .stDownloadButton button {background:#e74c3c;color:white;border:none;border-radius:8px;
+                                  padding:10px 18px;font-weight:600;transition:0.2s;}
+        .stDownloadButton button:hover {background:#c0392b;transform:scale(1.02);}
+        </style>
+        """, unsafe_allow_html=True)
+else:
+    st.markdown(
+        """
+        <style>
+        .stApp {background: #1c1c1c; color: #f5f5f5;}
+        .card {background: #2a2a2a; border-radius: 12px; padding: 20px; margin-bottom: 18px;
+               box-shadow: 0 6px 18px rgba(0,0,0,0.5); border: 1px solid #333;}
+        h1,h2,h3,h4,h5 {color:#f5f5f5!important;font-weight:600;}
+        section[data-testid="stSidebar"] {background-color:#252525;border-right:1px solid #333;color:#f5f5f5;}
+        section[data-testid="stSidebar"] h3 {color:#ff6347!important;font-weight:700;}
+        thead th {background-color:#333!important;color:#f5f5f5!important;}
+        tbody tr {background-color:#2a2a2a!important;color:#f5f5f5!important;}
+        tbody tr:nth-child(even){background-color:#202020!important;}
+        .stMetric {background:#333;border-radius:10px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.3);}
+        .stDownloadButton button {background:#ff6347;color:white;border:none;border-radius:8px;
+                                  padding:10px 18px;font-weight:600;transition:0.2s;}
+        .stDownloadButton button:hover {background:#e74c3c;transform:scale(1.02);}
+        </style>
+        """, unsafe_allow_html=True)
+
+# ---------- Load Dataset & Model ----------
 @st.cache_data(show_spinner=False)
 def load_data(path="dataset_tomat.csv"):
     return pd.read_csv(path)
@@ -52,163 +67,102 @@ def load_data(path="dataset_tomat.csv"):
 def load_joblib(path):
     try:
         return joblib.load(path)
-    except Exception as e:
+    except:
         return None
 
-# load
 try:
     df = load_data("dataset_tomat.csv")
 except FileNotFoundError:
-    st.error("File dataset_tomat.csv tidak ditemukan. Pastikan file ada di folder yang sama.")
+    st.error("❌ File dataset_tomat.csv tidak ditemukan.")
     st.stop()
 
 model = load_joblib("model_klasifikasi_tomat.joblib")
 scaler = load_joblib("scaler_klasifikasi_tomat.joblib")
 
-# ---------- Sidebar inputs ----------
+# ---------- Sidebar ----------
 with st.sidebar:
     st.markdown("<h3 class='brand'>🍅 Klasifikasi Tomat</h3>", unsafe_allow_html=True)
-    st.write("Masukkan fitur tomat (geser atau ketik).")
-    berat = st.slider("Berat Tomat (gr)", min_value=int(df["berat"].min()), max_value=int(df["berat"].max()), value=int(df["berat"].median()))
-    kekenyalan = st.slider("Kekenyalan Tomat (N)", min_value=float(df["kekenyalan"].min()), max_value=float(df["kekenyalan"].max()), value=float(df["kekenyalan"].median()))
-    kadar_gula = st.slider("Kadar Gula (Bx)", min_value=float(df["kadar_gula"].min()), max_value=float(df["kadar_gula"].max()), value=float(df["kadar_gula"].median()))
-    tebal_kulit = st.slider("Tebal Kulit Tomat (cm)", min_value=float(df["tebal_kulit"].min()), max_value=float(df["tebal_kulit"].max()), value=float(df["tebal_kulit"].median()))
+    berat = st.slider("Berat Tomat (gr)", int(df["berat"].min()), int(df["berat"].max()), int(df["berat"].median()))
+    kekenyalan = st.slider("Kekenyalan Tomat (N)", float(df["kekenyalan"].min()), float(df["kekenyalan"].max()), float(df["kekenyalan"].median()))
+    kadar_gula = st.slider("Kadar Gula (Bx)", float(df["kadar_gula"].min()), float(df["kadar_gula"].max()), float(df["kadar_gula"].median()))
+    tebal_kulit = st.slider("Tebal Kulit Tomat (cm)", float(df["tebal_kulit"].min()), float(df["tebal_kulit"].max()), float(df["tebal_kulit"].median()))
     st.divider()
-    st.caption("Theme: Material-inspired • Interactive charts • Lightweight")
-    st.button_label = "Prediksi"
+    predict_btn = st.button("🚀 Prediksi Sekarang", use_container_width=True)
 
-# ---------- Main layout ----------
-col_left, col_right = st.columns([1.1, 1])
-
-with col_left:
+# ---------- Main Layout ----------
+col1, col2 = st.columns([1.1, 1])
+with col1:
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.subheader("Input")
-    st.write("Data input yang akan diprediksi:")
-    data_baru = pd.DataFrame(
-        [[berat, kekenyalan, kadar_gula, tebal_kulit]],
-        columns=["berat", "kekenyalan", "kadar_gula", "tebal_kulit"]
-    )
+    st.subheader("📥 Input Data")
+    data_baru = pd.DataFrame([[berat, kekenyalan, kadar_gula, tebal_kulit]],
+                              columns=["berat","kekenyalan","kadar_gula","tebal_kulit"])
     st.dataframe(data_baru, use_container_width=True)
-    with st.expander("Lihat dataset contoh (sample)"):
+    with st.expander("Lihat sampel dataset"):
         st.dataframe(df.sample(min(10, len(df))).reset_index(drop=True))
     st.markdown("</div>", unsafe_allow_html=True)
 
-with col_right:
+with col2:
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.subheader("Hasil Prediksi")
+    st.subheader("📊 Hasil Prediksi")
     pred_box = st.empty()
     conf_box = st.empty()
     badge_box = st.empty()
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- Action: Prediksi ----------
-predict_btn = st.sidebar.button("Prediksi", use_container_width=True)
-
+# ---------- Predict ----------
 if predict_btn:
-    # spinner & simulate small delay for UX
-    with st.spinner("Sedang memproses prediksi... ✨"):
-        time.sleep(0.4)
-
-        # scale if scaler available
+    with st.spinner("Sedang memproses prediksi... 🍅"):
+        time.sleep(0.5)
         if scaler is not None:
-            try:
-                data_baru_scaled = scaler.transform(data_baru)
-            except Exception as e:
-                st.error(f"Error saat scaling: {e}")
-                data_baru_scaled = None
+            data_baru_scaled = scaler.transform(data_baru)
         else:
-            data_baru_scaled = None
+            data_baru_scaled = data_baru
 
-        # perform prediction if model present
-        if model is not None and data_baru_scaled is not None:
-            try:
-                prediksi = model.predict(data_baru_scaled)[0]
-                proba = model.predict_proba(data_baru_scaled)[0]
-                presentase = float(np.max(proba))
-            except Exception as e:
-                st.error(f"Error saat prediksi: {e}")
-                prediksi = None
-                presentase = None
+        if model is not None:
+            prediksi = model.predict(data_baru_scaled)[0]
+            proba = model.predict_proba(data_baru_scaled)[0]
+            presentase = float(np.max(proba))
         else:
-            prediksi = None
-            presentase = None
+            prediksi = "Model Tidak Ditemukan"
+            presentase = 0
 
-    # ---------- Show results ----------
-    if prediksi is not None:
-        # nice metric
-        pred_box.metric(label="Grade Prediksi", value=str(prediksi))
-        conf_box.metric(label="Keyakinan", value=f"{presentase*100:.2f}%")
-        # badge with color
-        grade_color = {"Ekspor":"#e74c3c", "Lokal Premium":"#27ae60", "Industri":"#3498db"}
-        color = grade_color.get(prediksi, "#9CA3AF")
-        badge_box.markdown(
-            f"<div style='padding:12px;border-radius:10px;background:{color};color:white;font-weight:700;text-align:center'>{prediksi}</div>",
-            unsafe_allow_html=True
-        )
-        st.success(f"Model memprediksi **{prediksi}** dengan keyakinan **{presentase*100:.2f}%**.")
-        st.balloons()
-    else:
-        st.warning("Model atau scaler tidak tersedia — prediksi dibatalkan. Pastikan model_klasifikasi_tomat.joblib dan scaler_klasifikasi_tomat.joblib ada di folder.")
+    # Tampilkan hasil
+    grade_color = {"Ekspor":"#e74c3c","Lokal Premium":"#27ae60","Industri":"#3498db"}
+    color = grade_color.get(prediksi, "#777777")
+    pred_box.metric("Grade Prediksi", prediksi)
+    conf_box.metric("Keyakinan", f"{presentase*100:.2f}%")
+    badge_box.markdown(
+        f"<div style='padding:12px;border-radius:10px;background:{color};color:white;font-weight:700;text-align:center'>{prediksi}</div>",
+        unsafe_allow_html=True)
+    st.success(f"Model memprediksi **{prediksi}** dengan keyakinan **{presentase*100:.2f}%**")
+    st.balloons()
 
-    # show scaled in expander
-    if data_baru_scaled is not None:
-        scaled_df = pd.DataFrame(data_baru_scaled, columns=data_baru.columns)
-        with st.expander("Lihat Data Baru (Scaled)"):
-            st.dataframe(scaled_df)
+    # Download hasil
+    result = data_baru.copy()
+    result["Prediksi"] = prediksi
+    result["Confidence"] = f"{presentase*100:.2f}%"
+    csv = result.to_csv(index=False).encode("utf-8")
+    st.download_button("⬇️ Download hasil prediksi", csv, "hasil_prediksi_tomat.csv", "text/csv")
 
-    # allow download of result
-    result_export = data_baru.copy()
-    result_export["prediksi"] = prediksi if prediksi is not None else ""
-    result_export["confidence"] = f"{presentase*100:.2f}%" if presentase is not None else ""
-    csv = result_export.to_csv(index=False).encode('utf-8')
-    st.download_button("⬇️ Download hasil prediksi (CSV)", data=csv, file_name="hasil_prediksi_tomat.csv", mime="text/csv")
-
-# ---------- Charts (interactive) ----------
-st.markdown("<div class='card' style='margin-top:12px'>", unsafe_allow_html=True)
-st.subheader("Visualisasi Interaktif")
-# prepare colors map for dataset
-color_map = {"Ekspor":"Tomato", "Lokal Premium":"MediumSeaGreen", "Industri":"DodgerBlue"}
+# ---------- Visualisasi ----------
+st.markdown("<div class='card'>", unsafe_allow_html=True)
+st.subheader("📈 Visualisasi Interaktif")
+color_map = {"Ekspor":"Tomato","Lokal Premium":"MediumSeaGreen","Industri":"DodgerBlue"}
 df["color_map"] = df["grade"].map(color_map)
 
-# Scatter 1: Berat vs Kekenyalan
-fig1 = px.scatter(
-    df,
-    x="berat",
-    y="kekenyalan",
-    color="grade",
-    color_discrete_map=color_map,
-    hover_data=["grade", "kadar_gula", "tebal_kulit"],
-    title="Berat vs Kekenyalan"
-)
-
-# add the new point if exists
-if 'data_baru' in locals():
-    fig1.add_scatter(x=[data_baru["berat"].iloc[0]], y=[data_baru["kekenyalan"].iloc[0]],
-                     mode="markers", marker=dict(size=12, symbol="x", color="black"),
-                     name="Data Baru")
-
-fig1.update_layout(height=420, margin=dict(l=10,r=10,t=40,b=10))
+fig1 = px.scatter(df, x="berat", y="kekenyalan", color="grade",
+                  color_discrete_map=color_map, title="Berat vs Kekenyalan")
+fig1.add_scatter(x=[berat], y=[kekenyalan], mode="markers",
+                 marker=dict(size=12, symbol="x", color="black"), name="Data Baru")
 st.plotly_chart(fig1, use_container_width=True)
 
-# Scatter 2: Kadar Gula vs Tebal Kulit
-fig2 = px.scatter(
-    df,
-    x="kadar_gula",
-    y="tebal_kulit",
-    color="grade",
-    color_discrete_map=color_map,
-    hover_data=["grade", "berat", "kekenyalan"],
-    title="Kadar Gula vs Tebal Kulit"
-)
-if 'data_baru' in locals():
-    fig2.add_scatter(x=[data_baru["kadar_gula"].iloc[0]], y=[data_baru["tebal_kulit"].iloc[0]],
-                     mode="markers", marker=dict(size=12, symbol="x", color="black"),
-                     name="Data Baru")
-fig2.update_layout(height=420, margin=dict(l=10,r=10,t=40,b=10))
+fig2 = px.scatter(df, x="kadar_gula", y="tebal_kulit", color="grade",
+                  color_discrete_map=color_map, title="Kadar Gula vs Tebal Kulit")
+fig2.add_scatter(x=[kadar_gula], y=[tebal_kulit], mode="markers",
+                 marker=dict(size=12, symbol="x", color="black"), name="Data Baru")
 st.plotly_chart(fig2, use_container_width=True)
-
 st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------- Footer ----------
 st.markdown("---")
-st.caption("Dibuat dengan penuh 🍅 oleh Khairul Faiz — tampilan modern")
+st.caption("Dibuat dengan penuh 🍅 oleh Khairul Faiz — tampilan modern & mode gelap")
